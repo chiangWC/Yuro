@@ -60,6 +60,20 @@ class PlaybackStateManager {
         _player.bufferedPosition
       ));
     });
+    
+    // 监听时长变化，更新当前音轨信息
+    _player.durationStream.listen((duration) {
+      if (_currentTrack != null && duration != null && duration != Duration.zero) {
+        final updatedTrack = AudioTrackInfo(
+          title: _currentTrack!.title,
+          artist: _currentTrack!.artist,
+          coverUrl: _currentTrack!.coverUrl,
+          url: _currentTrack!.url,
+          duration: duration,
+        );
+        updateTrackInfo(updatedTrack);
+      }
+    });
   }
 
   // 状态更新方法
@@ -81,7 +95,7 @@ class PlaybackStateManager {
       updateContext(newContext);
     }
     
-    final trackInfo = TrackInfoCreator.createFromFile(file, work);
+    final trackInfo = TrackInfoCreator.createFromFile(file, work, duration: _player.duration);
     updateTrackInfo(trackInfo);
   }
 

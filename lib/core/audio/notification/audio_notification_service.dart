@@ -42,6 +42,17 @@ class AudioNotificationService {
     _eventHub.trackChange.listen((event) {
       updateMetadata(event.track);
     });
+    
+    // 监听播放状态变化来更新时长
+    _eventHub.playbackState.listen((event) {
+      if (event.duration != null && event.duration != Duration.zero && _audioHandler != null) {
+        final currentMediaItem = (_audioHandler as BaseAudioHandler).mediaItem.value;
+        if (currentMediaItem != null && currentMediaItem.duration != event.duration) {
+          final updatedMediaItem = currentMediaItem.copyWith(duration: event.duration);
+          (_audioHandler as BaseAudioHandler).mediaItem.add(updatedMediaItem);
+        }
+      }
+    });
   }
 
   void updateMetadata(AudioTrackInfo trackInfo) {
