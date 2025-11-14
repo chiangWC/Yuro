@@ -36,38 +36,35 @@ class AudioCacheManager {
     }
   }
 
-  /// 清理过期和超量的缓存
+  /// 清理所有缓存
   static Future<void> cleanCache() async {
     try {
       final cacheDir = await _getCacheDir();
-      final files = await cacheDir.list().toList();
       
-      // 按修改时间排序
-      files.sort((a, b) {
-        return a.statSync().modified.compareTo(b.statSync().modified);
-      });
+      // 检查缓存目录是否存在
+      if (!await cacheDir.exists()) {
+        AppLogger.debug('缓存目录不存在，无需清理');
+        return;
+      }
 
-      var totalSize = 0;
+      final files = await cacheDir.list().toList();
+      AppLogger.debug('开始清理缓存，共有 ${files.length} 个文件');
+
       for (var file in files) {
         if (file is File) {
-          final stat = await file.stat();
-          
-          // 检查是否过期
-          if (DateTime.now().difference(stat.modified) > _cacheExpiration) {
+          try {
             await file.delete();
-            continue;
-          }
-
-          totalSize += stat.size;
-          
-          // 如果总大小超过限制,删除最旧的文件
-          if (totalSize > _maxCacheSize) {
-            await file.delete();
+            AppLogger.debug('已删除缓存文件: ${file.path}');
+          } catch (e) {
+            AppLogger.error('删除缓存文件失败: ${file.path}', e);
           }
         }
       }
+      
+      AppLogger.debug('缓存清理完成');
     } catch (e) {
       AppLogger.error('清理缓存失败', e);
+      rethrow;
     }
   }
 
