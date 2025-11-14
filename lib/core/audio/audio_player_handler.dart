@@ -36,6 +36,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
         bufferedPosition: _player.bufferedPosition,
         speed: _player.speed,
         queueIndex: 0,
+        duration: event.duration ?? Duration.zero,
       );
       playbackState.add(state);
     });
@@ -63,5 +64,21 @@ class AudioPlayerHandler extends BaseAudioHandler {
   Future<void> stop() async {
     AppLogger.debug('AudioHandler: 停止命令');
     await _player.stop();
+  }
+
+  @override
+  Future<void> skipToNext() async {
+    AppLogger.debug('AudioHandler: 下一曲命令');
+    if (_player.hasNext) {
+      await _player.seekToNext();
+    }
+  }
+
+  @override
+  Future<void> skipToPrevious() async {
+    AppLogger.debug('AudioHandler: 上一曲命令');
+    if (_player.hasPrevious) {
+      await _player.seekToPrevious();
+    }
   }
 }
