@@ -36,7 +36,6 @@ class AudioPlayerHandler extends BaseAudioHandler {
         bufferedPosition: _player.bufferedPosition,
         speed: _player.speed,
         queueIndex: 0,
-        duration: event.duration ?? Duration.zero,
       );
       playbackState.add(state);
     });
